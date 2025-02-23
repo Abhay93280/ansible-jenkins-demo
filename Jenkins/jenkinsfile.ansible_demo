@@ -1,11 +1,22 @@
 pipeline {
     agent any
+    environment {
+        ANSIBLE_HOME = '/usr/bin/ansible'
+    }
     stages {
-        stage('Ansible-Playbook Execution') {
+        stage("SCM checkout") {
             steps {
-                echo 'Executing Ansible Playbook'
-                ansiblePlaybook colorized: true, credentialsId: 'ssh', installation: 'Default', inventory: 'inventory/dynamic.aws_ec2.yml',extras: '-e host_group=\"tag_${TagKey}_${TagValue}\"', playbook: 'playbook/ansible-demo-pb.yaml'
+                git "https://github.com/Abhay93280/ansible-jenkins-demo.git"
             }
-        }
+        }   
+        stage("Execute Ansible") {
+            steps {
+                ansiblePlaybook credentialsId: 'ssh',
+                                 disableHostKeyChecking: true,
+                                 installation: 'Ansible',
+                                 inventory: 'dynamic.aws_ec2.yml',
+                                 playbook: 'ansible-demo-pb.yml'
+            }    
+        }    
     }
 }
